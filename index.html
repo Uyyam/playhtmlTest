@@ -43,23 +43,24 @@
       import { playhtml } from "https://unpkg.com/playhtml@latest";
       
     const musicPlayer = document.getElementById("music-player");
-    musicPlayer.onMount = ({ getData, requestUpdate }) => {
       musicPlayer.defaultData = { time: musicPlayer.currentTime };
-      //set time to position of audo element to data
-        playhtml.ready.then(() => {
-        if (cancelled) return;
-        // Safe to read presence, page data, or fully-hydrated shared state here
-      setData((data) => { data.time = musicPlayer.currentTime; });
-      });
-
-
-      musicPlayer.addEventListener('mousemove', setData((data) => { data.time = musicPlayer.currentTime; }));
-      
-
       musicPlayer.updateElement = ({ element, data }) => {
         element.currentTime = data.time;
         console.log(element.currentTime)
+        musicPlayer.play();
+        musicPlayer.muted = false;
       };
+    musicPlayer.onMount = ({ setData }) => {
+
+      //set time to position of audo element to data
+        playhtml.ready.then(() => {
+        // Safe to read presence, page data, or fully-hydrated shared state here
+      setData((data) => { data.time = musicPlayer.currentTime; }); // this only gets set once, need it to be set constantly
+
+      });
+
+
+      return () => {};
     }
       // Initialize with cursor tracking
       playhtml.init({
