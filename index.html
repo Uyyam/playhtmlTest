@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- 
+      This is an HTML comment
+      You can write text in a comment and the content won't be visible in the page
+    -->
+
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="https://cdn.jsdelivr.net/npm/p5@1.11.13/lib/p5.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/p5@1.11.13/lib/addons/p5.sound.min.js"></script>
+    
+    
+    
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <meta charset="utf-8" />
+
+    <!--
+      This is the page head - it contains info the browser uses
+      Like the title, which appears on the browser tab but not inside the page
+      Further down you'll see the content that displays in the page
+    -->
+    <title>playhtml starter</title>
+
+    <!-- The website stylesheet -->
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+      <div id="sketch-holder">
+             <script src="sketch.js"></script>
+      <!-- Our sketch will go here! -->
+    </div>
+
+    <audio autoplay muted loop id="music-player" can-play>
+  <source src="MAMA.mp3" type="audio/mp3">
+</audio>
+
+
+
+  </body>
+      <script type="module">
+      import { playhtml } from "https://unpkg.com/playhtml@latest";
+      
+    const musicPlayer = document.getElementById("music-player");
+    musicPlayer.onMount = ({ getData, requestUpdate }) => {
+      musicPlayer.defaultData = { time: musicPlayer.currentTime };
+      //set time to position of audo element to data
+        playhtml.ready.then(() => {
+        if (cancelled) return;
+        // Safe to read presence, page data, or fully-hydrated shared state here
+      setData((data) => { data.time = musicPlayer.currentTime; });
+      });
+
+
+      musicPlayer.addEventListener('mousemove', setData((data) => { data.time = musicPlayer.currentTime; }));
+      
+
+      musicPlayer.updateElement = ({ element, data }) => {
+        element.currentTime = data.time;
+        console.log(element.currentTime)
+      };
+    }
+      // Initialize with cursor tracking
+      playhtml.init({
+        cursors: {
+          enabled: true,
+          room: "page"
+        },
+        developmentMode: true
+      });
+
+      // Make playhtml available globally for script.js
+      window.playhtml = playhtml;
+
+
+    </script>
+    <!-- The website JavaScript file -->
+    <script src="script.js" defer></script>
+
+</html>
