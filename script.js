@@ -1,5 +1,8 @@
 
 //createUser();
+let capture;
+let canvas;
+
 
 
 document.addEventListener('mousemove', (event) => {
@@ -31,10 +34,25 @@ function createUser(){
   const el = document.createElement("div");
   el.setAttribute("can-mirror", "")
 el.id = playhtml.presence.getMyIdentity().publicKey;
+//
 document.getElementById('sketch-holder').appendChild(el);
-
+new p5(newCapture);
 playhtml.setupPlayElement(el, { ignoreIfAlreadySetup: true });
 }
+
+function newCapture(p) {
+  p.setup = function () {
+  canvas = p.createCanvas(100, 200);
+capture = p.createCapture(p.VIDEO,{ flipped:true });
+  // Move the canvas so it’s inside our <div id="sketch-holder">.
+
+    capture.parent(document.getElementById(playhtml.presence.getMyIdentity().publicKey));
+          canvas.parent('sketch-holder');
+          canvas.hide();
+  };
+}
+
+
 
 // const el = document.getElementById("sketch-host");
 //   el.myDefaultAwareness = "#2563eb";
@@ -51,5 +69,3 @@ playhtml.setupPlayElement(el, { ignoreIfAlreadySetup: true });
 //     );
 //   }
  
-
-
