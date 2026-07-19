@@ -50,8 +50,6 @@
 const DRIFT_THRESHOLD = 0.25; // seconds
 
 musicPlayer.updateElement = ({ element, data }) => {
-  element.muted = true;
-  element.volume = 0.1;
 
   // Guard 1: data not ready / malformed
   if (!data || typeof data.startedAt !== "number" || !isFinite(data.startedAt)) {
