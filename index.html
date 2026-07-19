@@ -43,30 +43,59 @@
       import { playhtml } from "https://unpkg.com/playhtml@latest";
       
     const musicPlayer = document.getElementById("music-player");
-      musicPlayer.defaultData = { time: musicPlayer.currentTime };
-      musicPlayer.updateElement = ({ element, data }) => {
-        element.currentTime = data.time;
-        //console.log(element.currentTime)
-        musicPlayer.play();
-        musicPlayer.muted = true;
-        musicPlayer.volume = 0.1;
-      };
-    musicPlayer.onMount = ({ setData, requestUpdate }) => {
+    musicPlayer.defaultData = {
+  startedAt: Date.now() - musicPlayer.currentTime * 1000,
+};
 
-      //set time to position of audo element to data
+const DRIFT_THRESHOLD = 0.25; // seconds
 
-       const setTime = () =>
-       setData((data) => { data.time = musicPlayer.currentTime; });
-   
-        setTime();
-     const Timer = setInterval(setTime, 1000);
- 
-    return () => {
-      clearInterval(Timer);
+musicPlayer.updateElement = ({ element, data }) => {
+  element.muted = true;
+  element.volume = 0.1;
 
-    };
+  // Guard 1: data not ready / malformed
+  if (!data || typeof data.startedAt !== "number" || !isFinite(data.startedAt)) {
+    return;
+  }
 
-    }
+  const expected = (Date.now() - data.startedAt) / 1000;
+
+  // Guard 2: expected must be finite and non-negative
+  if (!isFinite(expected) || expected < 0) {
+    return;
+  }
+
+  // Guard 3: element must have metadata loaded before we can seek
+  if (element.readyState < 1 /* HAVE_METADATA */) {
+    element.addEventListener(
+      "loadedmetadata",
+      () => {
+        if (isFinite(expected)) element.currentTime = expected;
+      },
+      { once: true }
+    );
+    return;
+  }
+
+  const drift = Math.abs(element.currentTime - expected);
+  if (drift > DRIFT_THRESHOLD) {
+    element.currentTime = expected;
+  }
+
+  if (element.paused) {
+    element.play().catch(() => {});
+  }
+};
+
+musicPlayer.onMount = ({ setData, requestUpdate }) => {
+  const resync = setInterval(() => {
+    requestUpdate();
+  }, 5000);
+
+  return () => clearInterval(resync);
+};
+
+    
 
       playhtml.init({
         developmentMode: true
