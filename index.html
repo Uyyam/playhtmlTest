@@ -52,9 +52,23 @@ musicPlayer.updateElement = ({ element, data }) => {
   element.muted = true;
   element.volume = 0.2;
 
-  const expected = (Date.now() - data.startedAt) / 1000;
-  const drift = Math.abs(element.currentTime - expected);
+  if (!data || typeof data.startedAt !== "number" || !isFinite(data.startedAt)) {
+    return;
+  }
 
+  const expected = (Date.now() - data.startedAt) / 1000;
+  if (!isFinite(expected) || expected < 0) {
+    return;
+  }
+
+  if (element.readyState < 1) {
+    element.addEventListener("loadedmetadata", () => {
+      if (isFinite(expected)) element.currentTime = expected;
+    }, { once: true });
+    return;
+  }
+
+  const drift = Math.abs(element.currentTime - expected);
   if (drift > DRIFT_THRESHOLD) {
     element.currentTime = expected;
   }
