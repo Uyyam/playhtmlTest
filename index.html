@@ -146,25 +146,57 @@ playhtml.ready.then(() => {
       import { playhtml } from "https://unpkg.com/playhtml@latest";
       
     const musicPlayer = document.getElementById("music-player");
-      musicPlayer.defaultData = { time: musicPlayer.currentTime };
-      musicPlayer.updateElement = ({ element, data }) => {
-        element.currentTime = data.time;
-        console.log(element.currentTime)
-        musicPlayer.play();
-        musicPlayer.muted = false;
-      };
-    musicPlayer.onMount = ({ setData }) => {
+    musicPlayer.defaultData = {
+  startedAt: Date.now() - musicPlayer.currentTime * 1000,
+};
 
-      //set time to position of audo element to data
-        playhtml.ready.then(() => {
-        // Safe to read presence, page data, or fully-hydrated shared state here
-      setData((data) => { data.time = musicPlayer.currentTime; }); // this only gets set once, need it to be set constantly
+const DRIFT_THRESHOLD = 0.25; // seconds, only correct if off by more than this
 
-      });
+musicPlayer.updateElement = ({ element, data }) => {
+  element.muted = true;
+  element.volume = 0.1;
+
+  const expected = (Date.now() - data.startedAt) / 1000;
+  const drift = Math.abs(element.currentTime - expected);
+
+  if (drift > DRIFT_THRESHOLD) {
+    element.currentTime = expected;
+  }
+
+  if (element.paused) {
+    element.play().catch(() => {});
+  }
+};
+
+musicPlayer.onMount = ({ setData, requestUpdate }) => {
+  // Only set the reference once — don't keep resetting it every second.
+  // If you want periodic re-sync in case of clock skew, do it rarely
+  // and only correct big drift (handled above), e.g. every 10-15s:
+  const resync = setInterval(() => {
+    requestUpdate(); // just re-runs updateElement with existing data, checks drift
+  }, 5000);
+
+  return () => clearInterval(resync);
+};
+        //   musicPlayer.defaultData = { time: musicPlayer.currentTime };
+    //   musicPlayer.updateElement = ({ element, data }) => {
+    //     element.currentTime = data.time;
+    //     console.log(element.currentTime)
+    //     musicPlayer.play();
+    //     musicPlayer.muted = false;
+    //   };
+    // musicPlayer.onMount = ({ setData }) => {
+
+    //   //set time to position of audo element to data
+    //     playhtml.ready.then(() => {
+    //     // Safe to read presence, page data, or fully-hydrated shared state here
+    //   setData((data) => { data.time = musicPlayer.currentTime; }); // this only gets set once, need it to be set constantly
+
+    //   });
 
 
-      return () => {};
-    }
+    //   return () => {};
+    // }
 
       playhtml.init({
         developmentMode: true
