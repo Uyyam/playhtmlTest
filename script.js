@@ -1,7 +1,7 @@
 
 //createUser();
 
-
+let capture;
 
 
 // const presences = playhtml.presence.getPresences();
@@ -31,7 +31,7 @@ new p5(newCapture);
 function newCapture(p) {
   p.setup = function () {
   let canvas = p.createCanvas(100, 200);
-let capture = p.createCapture(p.VIDEO,{ flipped:true });
+capture = p.createCapture(p.VIDEO,{ flipped:true });
   
   // Move the canvas so it’s inside our <div id="sketch-holder">.
 
