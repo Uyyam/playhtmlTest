@@ -94,6 +94,33 @@ musicPlayer.onMount = ({ setData, requestUpdate }) => {
 
   return () => clearInterval(resync);
 };
+        
+const captures = {};
+
+function createUser(id){
+  const el = document.createElement("div");
+  el.setAttribute("can-mirror", "")
+el.id = id;
+//
+document.getElementById('sketch-holder').appendChild(el);
+new p5((p) => newCapture(p, id));
+//playhtml.setupPlayElement(el, { ignoreIfAlreadySetup: true });
+}
+
+function newCapture(p , id) {
+  p.setup = function () {
+  let canvas = p.createCanvas(100, 200);
+const capture = p.createCapture(p.VIDEO, { flipped: true });
+
+    captures[id] = capture; // store it, keyed by user id
+  
+  // Move the canvas so it’s inside our <div id="sketch-holder">.
+
+    capture.parent(document.getElementById(id));
+          canvas.parent('sketch-holder');
+          canvas.hide();
+  };
+}
 
     
 
@@ -128,6 +155,4 @@ playhtml.ready.then(() => {
             
 
     </script>
-    <script src="script.js" ></script>
-
 </html>
