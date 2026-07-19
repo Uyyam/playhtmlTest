@@ -1,7 +1,7 @@
 
 //createUser();
 
-let capture;
+const captures = {};
 
 
 // const presences = playhtml.presence.getPresences();
@@ -18,83 +18,31 @@ let capture;
 
 //when new user joins
 
-function createUser(){
+function createUser(id){
   const el = document.createElement("div");
   el.setAttribute("can-mirror", "")
-el.id = playhtml.presence.getMyIdentity().publicKey;
+el.id = id;
 //
 document.getElementById('sketch-holder').appendChild(el);
-new p5(newCapture);
+new p5((p) => newCapture(p, id));
 //playhtml.setupPlayElement(el, { ignoreIfAlreadySetup: true });
 }
 
-function newCapture(p) {
+function newCapture(p , id) {
   p.setup = function () {
   let canvas = p.createCanvas(100, 200);
-capture = p.createCapture(p.VIDEO,{ flipped:true });
+const capture = p.createCapture(p.VIDEO, { flipped: true });
+
+    captures[id] = capture; // store it, keyed by user id
   
   // Move the canvas so it’s inside our <div id="sketch-holder">.
 
-    capture.parent(document.getElementById(playhtml.presence.getMyIdentity().publicKey));
+    capture.parent(document.getElementById(id));
           canvas.parent('sketch-holder');
           canvas.hide();
   };
 }
 
-
-
-//createUser();
-let capture;
-let canvas;
-
-
-
-document.addEventListener('mousemove', (event) => {
-  // Use clientX and clientY for viewport coordinates
-  document.getElementById(playhtml.presence.getMyIdentity().publicKey).style.left = `${event.clientX}px`;
-  document.getElementById(playhtml.presence.getMyIdentity().publicKey).style.top = `${event.clientY}px`;
-
-  if(document.getElementById('music-player').muted){
-    document.getElementById('music-player').muted = false;
-  }
-});
-
-
-const presences = playhtml.presence.getPresences();
-for (const [id, p] of presences) {
-  p.isMe;            // boolean
-  p.playerIdentity;  // name, colors, publicKey
-  p.cursor;          // { x, y, pointer } | null
-// createNewCap(p.playerIdentity);
-}
-console.log(presences);
-
-// Subscribe to a specific channel — fires only when that channel changes
-const unsub = playhtml.presence.onPresenceChange("playerIdentity", createUser);
-
-//when new user joins
-
-function createUser(){
-  const el = document.createElement("div");
-  el.setAttribute("can-mirror", "")
-el.id = playhtml.presence.getMyIdentity().publicKey;
-//
-document.getElementById('sketch-holder').appendChild(el);
-new p5(newCapture);
-playhtml.setupPlayElement(el, { ignoreIfAlreadySetup: true });
-}
-
-function newCapture(p) {
-  p.setup = function () {
-  canvas = p.createCanvas(100, 200);
-capture = p.createCapture(p.VIDEO,{ flipped:true });
-  // Move the canvas so it’s inside our <div id="sketch-holder">.
-
-    capture.parent(document.getElementById(playhtml.presence.getMyIdentity().publicKey));
-          canvas.parent('sketch-holder');
-          canvas.hide();
-  };
-}
 
 
 
