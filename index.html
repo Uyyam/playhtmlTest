@@ -42,8 +42,6 @@
       import { playhtml } from "https://unpkg.com/playhtml@latest";
       
     const musicPlayer = document.getElementById("music-player");
-// Store a reference point instead of raw currentTime:
-// startedAt = epoch ms when playback would have been at t=0
 musicPlayer.defaultData = {
   startedAt: Date.now() - musicPlayer.currentTime * 1000,
 };
@@ -51,6 +49,7 @@ musicPlayer.defaultData = {
 const DRIFT_THRESHOLD = 0.25; // seconds, only correct if off by more than this
 
 musicPlayer.updateElement = ({ element, data }) => {
+  element.muted = true;
   element.volume = 0.2;
 
   const expected = (Date.now() - data.startedAt) / 1000;
