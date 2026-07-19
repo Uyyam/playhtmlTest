@@ -9,7 +9,6 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <script src="https://cdn.jsdelivr.net/npm/p5@1.11.13/lib/p5.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/p5@1.11.13/lib/addons/p5.sound.min.js"></script>
     
     
     
@@ -43,39 +42,24 @@
       import { playhtml } from "https://unpkg.com/playhtml@latest";
       
     const musicPlayer = document.getElementById("music-player");
-    musicPlayer.defaultData = {
+   import { playhtml } from "https://unpkg.com/playhtml@latest";
+
+const musicPlayer = document.getElementById("music-player");
+
+// Store a reference point instead of raw currentTime:
+// startedAt = epoch ms when playback would have been at t=0
+musicPlayer.defaultData = {
   startedAt: Date.now() - musicPlayer.currentTime * 1000,
 };
 
-const DRIFT_THRESHOLD = 0.25; // seconds
+const DRIFT_THRESHOLD = 0.25; // seconds, only correct if off by more than this
 
 musicPlayer.updateElement = ({ element, data }) => {
-
-  // Guard 1: data not ready / malformed
-  if (!data || typeof data.startedAt !== "number" || !isFinite(data.startedAt)) {
-    return;
-  }
+  element.volume = 0.2;
 
   const expected = (Date.now() - data.startedAt) / 1000;
-
-  // Guard 2: expected must be finite and non-negative
-  if (!isFinite(expected) || expected < 0) {
-    return;
-  }
-
-  // Guard 3: element must have metadata loaded before we can seek
-  if (element.readyState < 1 /* HAVE_METADATA */) {
-    element.addEventListener(
-      "loadedmetadata",
-      () => {
-        if (isFinite(expected)) element.currentTime = expected;
-      },
-      { once: true }
-    );
-    return;
-  }
-
   const drift = Math.abs(element.currentTime - expected);
+
   if (drift > DRIFT_THRESHOLD) {
     element.currentTime = expected;
   }
@@ -86,12 +70,18 @@ musicPlayer.updateElement = ({ element, data }) => {
 };
 
 musicPlayer.onMount = ({ setData, requestUpdate }) => {
+  // Only set the reference once — don't keep resetting it every second.
+  // If you want periodic re-sync in case of clock skew, do it rarely
+  // and only correct big drift (handled above), e.g. every 10-15s:
   const resync = setInterval(() => {
-    requestUpdate();
+    requestUpdate(); // just re-runs updateElement with existing data, checks drift
   }, 5000);
 
   return () => clearInterval(resync);
 };
+
+playhtml.init({ developmentMode: true });
+window.playhtml = playhtml;
         
 const captures = {};
 
@@ -102,7 +92,7 @@ el.id = id;
 //
 document.getElementById('sketch-holder').appendChild(el);
 new p5((p) => newCapture(p, id));
-//playhtml.setupPlayElement(el, { ignoreIfAlreadySetup: true });
+playhtml.setupPlayElement(el, { ignoreIfAlreadySetup: true });
 }
 
 function newCapture(p , id) {
