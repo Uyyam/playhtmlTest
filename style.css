@@ -1,6 +1,8 @@
 html, body {
   margin: 0;
   padding: 0;
+  background-color: indigo;
+  cursor:none;
 }
 
 canvas {
@@ -16,7 +18,17 @@ canvas {
 
 #sketch-holder * {
   position: fixed;
-  /* transform: translate(-100%, -100%); */
+  /* left: 0;
+  top: 0; */
+}
+
+video {
+  position: fixed;
+  border-radius: 50%;
+  border: 2px ridge darkblue;
+  transform: translate(-50%, -50%);
+  width:100px;
+  height:100px;
   /* left: 0;
   top: 0; */
 }
