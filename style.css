@@ -22,7 +22,7 @@ canvas {
   top: 0; */
 }
 
-video {
+canvas {
   position: fixed;
   border-radius: 50%;
   border: 2px ridge darkblue;
