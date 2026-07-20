@@ -106,17 +106,16 @@ playhtml.setupPlayElement(el, { ignoreIfAlreadySetup: true });
 
 function newCapture(p , id) {
   p.setup = function () {
-  let canvas = p.createCanvas(100, 200);
-const capture = p.createCapture(p.VIDEO, { flipped: true });
-
-    captures[id] = capture; // store it, keyed by user id
-  
-  // Move the canvas so it’s inside our <div id="sketch-holder">.
-
-    capture.parent(document.getElementById(id));
-          canvas.parent('sketch-holder');
-          canvas.hide();
+  const canvas = p.createCanvas(100, 100);
+    const capture = p.createCapture(p.VIDEO, { flipped: true });
+    capture.size(100,100);
+    capture.hide();               // hide the raw video, only show the canvas
+    canvas.parent(document.getElementById(id));
+    captures[id] = capture;       // draw(
   };
+  p.draw = function () {
+    p.image(captures[id], 0, 0, 100);
+  }
 }
 
     
